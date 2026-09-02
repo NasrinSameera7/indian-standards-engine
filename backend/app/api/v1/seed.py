@@ -19,11 +19,11 @@ async def seed_database():
     import os
     import sys
     sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    from scripts.seed_standards import seed_data
     
     data_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "data", "sample_standards.json")
     
     try:
+        from scripts.seed_standards import seed_data
         await seed_data(data_path)
         return {"message": "Success! Database seeded and embeddings generated."}
     except Exception as e:
