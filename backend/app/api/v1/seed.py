@@ -15,7 +15,7 @@ def run_seed_task():
     data_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "data", "sample_standards.json")
     asyncio.run(seed_data(data_path))
 
-@router.post("/seed")
+@router.get("/seed")
 async def seed_database(background_tasks: BackgroundTasks):
     """Trigger database seeding and AI embedding generation in the background."""
     background_tasks.add_task(run_seed_task)
