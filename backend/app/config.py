@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     BHASHINI_API_URL: str = "https://dhruva-api.bhashini.gov.in"
     TESSERACT_CMD: str = "tesseract"
     BIS_BASE_URL: str = "https://www.services.bis.gov.in"
-    CORS_ORIGINS: List[str] = ["http://localhost:5173"]
+    CORS_ORIGINS: List[str] = ["*"]
     SYNC_SCHEDULE_HOURS: int = 24
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
