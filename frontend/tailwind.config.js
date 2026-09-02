@@ -1,0 +1,15 @@
+export default {
+  content: ['./index.html', './src/**/*.{js,jsx}'],
+  theme: {
+    extend: {
+      colors: {
+        primary: { 50: '#eff6ff', 100: '#dbeafe', 200: '#bfdbfe', 300: '#93c5fd', 400: '#60a5fa', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8', 800: '#1e40af', 900: '#1e3a8a' },
+        accent: { 50: '#fef3c7', 100: '#fde68a', 500: '#f59e0b', 600: '#d97706' },
+        saffron: '#FF9933',
+        india_green: '#138808',
+        navy: '#000080'
+      }
+    }
+  },
+  plugins: []
+}

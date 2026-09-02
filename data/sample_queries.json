@@ -1,0 +1,16 @@
+[
+  {"query": "Portland cement for building construction", "expected_standards": ["IS 269", "IS 456", "IS 383"]},
+  {"query": "Steel bars for reinforced concrete", "expected_standards": ["IS 1786", "IS 2062", "IS 456"]},
+  {"query": "PVC insulated cables for house wiring", "expected_standards": ["IS 694", "IS 732"]},
+  {"query": "LED lights for street lighting", "expected_standards": ["IS 16046", "IS 10322"]},
+  {"query": "Fire extinguishers for office buildings", "expected_standards": ["IS 2190", "IS 15683", "IS 2925"]},
+  {"query": "PVC pipes for water supply", "expected_standards": ["IS 4985", "IS 7834"]},
+  {"query": "Drinking water quality standards", "expected_standards": ["IS 10500"]},
+  {"query": "Structural steel for bridges", "expected_standards": ["IS 2062", "IS 4923"]},
+  {"query": "Distribution transformers", "expected_standards": ["IS 1180", "IS 2026"]},
+  {"query": "निर्माण के लिए सीमेंट", "expected_standards": ["IS 269", "IS 456"]},
+  {"query": "सड़क निर्माण के लिए बिटुमेन", "expected_standards": ["IS 73"]},
+  {"query": "Nuts and bolts for structural use", "expected_standards": ["IS 1363", "IS 1367"]},
+  {"query": "Power cables for underground installation", "expected_standards": ["IS 1554", "IS 7098"]},
+  {"query": "Smart electricity meters", "expected_standards": ["IS 16444", "IS 13779"]}
+]
