@@ -61,8 +61,8 @@ async def seed_data(data_path: str):
         texts = [f"{s.is_number}: {s.title}. {s.description or ''}" for s in all_standards]
         ids = [s.id for s in all_standards]
         
-        # Generate batch embeddings
-        embeddings = engine.encode_batch(texts, batch_size=16)
+        # Generate batch embeddings with very small batch size for low RAM
+        embeddings = engine.encode_batch(texts, batch_size=2)
         
         # Save to DB
         print("Saving embeddings to DB...")
