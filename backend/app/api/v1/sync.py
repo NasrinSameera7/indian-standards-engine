@@ -1,14 +1,12 @@
 """Sync API endpoints."""
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
-from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.database import get_db
 from app.services.sync_service import BISSyncService
 
 router = APIRouter()
 
-def get_sync_service(db: AsyncSession = Depends(get_db)):
-    return BISSyncService(db)
+def get_sync_service():
+    return BISSyncService(bis_base_url="", db_session_factory=None)
 
 @router.post("/trigger")
 async def trigger_sync(

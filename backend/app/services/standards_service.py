@@ -9,8 +9,15 @@ from app.models.standard import IndianStandard, StandardAmendment, NormativeRefe
 logger = logging.getLogger(__name__)
 
 class StandardsService:
-    async def get_all(self, db: AsyncSession, skip: int = 0, limit: int = 100) -> list[Any]:
-        result = await db.execute(select(IndianStandard).offset(skip).limit(limit))
+    async def get_all(self, db: AsyncSession, skip: int = 0, limit: int = 100,
+                      subject_area: str | None = None, status: str | None = None) -> list[Any]:
+        stmt = select(IndianStandard)
+        if subject_area:
+            stmt = stmt.where(IndianStandard.subject_area == subject_area)
+        if status:
+            stmt = stmt.where(IndianStandard.status == status)
+        stmt = stmt.offset(skip).limit(limit)
+        result = await db.execute(stmt)
         return result.scalars().all()
 
     async def get_by_id(self, db: AsyncSession, standard_id: int) -> Any | None:
@@ -39,6 +46,9 @@ class StandardsService:
 
     async def create_standard(self, db: AsyncSession, data: Any) -> Any:
         pass
+
+    async def create(self, db: AsyncSession, data: Any) -> Any:
+        return await self.create_standard(db=db, data=data)
 
     async def bulk_create(self, db: AsyncSession, standards: list[dict]) -> int:
         return len(standards)
