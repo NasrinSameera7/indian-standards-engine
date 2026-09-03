@@ -24,6 +24,12 @@ class SearchService:
     async def search_by_text(self, query: str, top_k: int, include_allied: bool, language_hint: str | None, db: AsyncSession) -> dict:
         english_query, detected_lang = await self.multilingual.process(query, language_hint)
         
+        # Log the search
+        await self.audit.log(
+            db, self.audit.SEARCH_PERFORMED, "SearchQuery", "",
+            "session_user", {"query": query, "detected_lang": detected_lang}, "127.0.0.1"
+        )
+        
         vector_results = self.vector_service.search(english_query, top_k)
         
         results = []
