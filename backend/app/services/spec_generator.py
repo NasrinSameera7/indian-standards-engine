@@ -1,20 +1,41 @@
 from __future__ import annotations
 """Specification Generator Service."""
 import logging
-from typing import Any
+import json
+from datetime import datetime
 from sqlalchemy.ext.asyncio import AsyncSession
+from app.schemas.specification import SpecGenerateRequest
+from app.models.specification import GeneratedSpecification
 
 logger = logging.getLogger(__name__)
 
 class SpecGeneratorService:
-    async def generate(self, title: str, standard_ids: list[int], original_query: str, additional_requirements: str, db: AsyncSession) -> dict:
+    def __init__(self, db: AsyncSession):
+        self.db = db
+
+    async def generate(self, request: SpecGenerateRequest) -> dict:
+        sections = [
+            {"heading": "SCOPE OF WORK", "content": f"{request.original_query or ''}\n{request.additional_requirements or ''}".strip() or "Standard execution as per specified codes."},
+            {"heading": "APPLICABLE STANDARDS", "content": "The execution shall strictly comply with the following Indian Standards:\n" + "\n".join([f"- IS Document ID: {sid}" for sid in request.standard_ids])},
+            {"heading": "TECHNICAL REQUIREMENTS", "content": "All materials and workmanship must adhere to the physical, chemical, and structural requirements defined in the applicable IS codes."},
+            {"heading": "QUALITY AND TESTING", "content": "Mandatory sampling and laboratory testing must be conducted according to the IS guidelines prior to approval."},
+            {"heading": "CERTIFICATION", "content": "Products must bear the BIS ISI mark or relevant CRS certification where mandatory."},
+            {"heading": "PACKAGING AND MARKING", "content": "All consignments must be appropriately packed and permanently marked with manufacturer details and IS reference numbers."}
+        ]
+        
+        # Save to DB to get an ID
+        spec_record = GeneratedSpecification(
+            title=request.title,
+            content_json=sections,
+            selected_standard_ids=request.standard_ids
+        )
+        self.db.add(spec_record)
+        await self.db.commit()
+        await self.db.refresh(spec_record)
+        
         return {
-            "title": title,
-            "SCOPE_OF_WORK": original_query + "\n" + additional_requirements,
-            "APPLICABLE_STANDARDS": [],
-            "TECHNICAL_REQUIREMENTS": "Extracted requirements here",
-            "QUALITY_AND_TESTING": "Testing methods here",
-            "CERTIFICATION_REQUIREMENTS": "Certification details",
-            "PACKAGING_AND_MARKING": "Packaging info",
-            "GENERAL_CONDITIONS": "General terms and conditions apply."
+            "id": spec_record.id,
+            "title": spec_record.title,
+            "sections": sections,
+            "created_at": spec_record.created_at or datetime.now()
         }
