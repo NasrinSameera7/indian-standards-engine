@@ -20,12 +20,39 @@ class ExportService:
         buffer = io.BytesIO()
         try:
             c = canvas.Canvas(buffer, pagesize=letter)
-            c.drawString(100, 750, f"Title: {spec.get('title', 'Specification')}")
+            c.setFont("Helvetica-Bold", 16)
+            c.drawString(100, 750, str(spec.get('title', 'Specification')))
+            
             y = 700
-            for k, v in spec.items():
-                if k == 'title': continue
-                c.drawString(100, y, f"{k}: {str(v)[:50]}...")
-                y -= 50
+            sections = spec.get('sections', [])
+            if not isinstance(sections, list):
+                sections = []
+                
+            for section in sections:
+                if y < 100:
+                    c.showPage()
+                    y = 750
+                    
+                heading = section.get('heading', '')
+                content = section.get('content', '')
+                
+                c.setFont("Helvetica-Bold", 12)
+                c.drawString(100, y, str(heading))
+                y -= 20
+                
+                c.setFont("Helvetica", 10)
+                # Simple text wrapping for PDF
+                import textwrap
+                wrapped_text = textwrap.wrap(str(content), width=85)
+                for line in wrapped_text:
+                    if y < 100:
+                        c.showPage()
+                        c.setFont("Helvetica", 10)
+                        y = 750
+                    c.drawString(100, y, line)
+                    y -= 15
+                y -= 20
+                
             c.showPage()
             c.save()
         except Exception as e:
@@ -36,11 +63,16 @@ class ExportService:
         buffer = io.BytesIO()
         try:
             doc = docx.Document()
-            doc.add_heading(spec.get('title', 'Specification'), 0)
-            for k, v in spec.items():
-                if k == 'title': continue
-                doc.add_heading(k, level=1)
-                doc.add_paragraph(str(v))
+            doc.add_heading(str(spec.get('title', 'Specification')), 0)
+            
+            sections = spec.get('sections', [])
+            if not isinstance(sections, list):
+                sections = []
+                
+            for section in sections:
+                doc.add_heading(str(section.get('heading', '')), level=1)
+                doc.add_paragraph(str(section.get('content', '')))
+                
             doc.save(buffer)
         except Exception as e:
             logger.error(f"DOCX export failed: {e}")

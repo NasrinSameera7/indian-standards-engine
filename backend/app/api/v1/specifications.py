@@ -32,16 +32,32 @@ async def generate_specification(
 async def export_specification(
     spec_id: int,
     format: str = Query(..., regex="^(pdf|docx)$"),
-    export_service: ExportService = Depends(get_export_service)
+    export_service: ExportService = Depends(get_export_service),
+    db: AsyncSession = Depends(get_db)
 ):
     """Export a generated specification as PDF or DOCX."""
     try:
+        from sqlalchemy import select
+        from app.models.specification import GeneratedSpecification
+        
+        result = await db.execute(select(GeneratedSpecification).where(GeneratedSpecification.id == spec_id))
+        spec = result.scalar_one_or_none()
+        
+        if not spec:
+            raise HTTPException(status_code=404, detail="Specification not found")
+            
+        # Convert to dict for ExportService
+        spec_dict = {
+            "title": spec.title,
+            "sections": spec.content_json
+        }
+
         if format == "pdf":
-            file_bytes = await export_service.export_pdf(spec_id)
+            file_bytes = export_service.export_pdf(spec_dict)
             media_type = "application/pdf"
             filename = f"specification_{spec_id}.pdf"
         else:
-            file_bytes = await export_service.export_docx(spec_id)
+            file_bytes = export_service.export_docx(spec_dict)
             media_type = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
             filename = f"specification_{spec_id}.docx"
             
