@@ -14,7 +14,20 @@ const SpecPreview = ({ spec }) => {
           {spec.title || 'TECHNICAL SPECIFICATION'}
         </h1>
         
-        <div dangerouslySetInnerHTML={{ __html: spec.content || '<p>No content generated yet.</p>' }} />
+        {spec.sections && spec.sections.length > 0 ? (
+          spec.sections.map((section, idx) => (
+            <div key={idx} className="mb-6">
+              <h2 className="text-xl font-semibold mb-2">{section.heading}</h2>
+              <div className="whitespace-pre-line text-gray-700">
+                {section.content}
+              </div>
+            </div>
+          ))
+        ) : spec.content ? (
+          <div dangerouslySetInnerHTML={{ __html: spec.content }} />
+        ) : (
+          <p>No content generated yet.</p>
+        )}
       </div>
     </div>
   );
