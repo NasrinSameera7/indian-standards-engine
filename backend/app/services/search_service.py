@@ -22,32 +22,25 @@ class SearchService:
         self.audit = audit
 
     async def search_by_text(self, query: str, top_k: int, include_allied: bool, language_hint: str | None, db: AsyncSession) -> dict:
-        # Fallback to basic PostgreSQL text search to bypass Render 512MB RAM limit
-        from sqlalchemy import select
-        from sqlalchemy.orm import selectinload
-        from app.models.standard import IndianStandard
+        english_query, detected_lang = await self.multilingual.process(query, language_hint)
         
-        search_term = f"%{query}%"
-        stmt = select(IndianStandard).where(
-            (IndianStandard.title.ilike(search_term)) | 
-            (IndianStandard.description.ilike(search_term)) |
-            (IndianStandard.is_number.ilike(search_term))
-        ).limit(top_k)
-        
-        db_result = await db.execute(stmt)
-        standards_list = db_result.scalars().all()
+        vector_results = self.vector_service.search(english_query, top_k)
         
         results = []
-        for std in standards_list:
+        for std_id, score in vector_results:
+            std = await self.standards.get_by_id(db, std_id)
+            if not std:
+                continue
+            
             result_item = {
                 "standard": std,
-                "score": 0.99,  # Mock score for UI
-                "amendments": await self.standards.get_amendments(db, std.id),
-                "version_info": await self.standards.check_latest_version(db, std.id),
-                "certification_info": await self.standards.get_certification_info(db, std.id)
+                "score": score,
+                "amendments": await self.standards.get_amendments(db, std_id),
+                "version_info": await self.standards.check_latest_version(db, std_id),
+                "certification_info": await self.standards.get_certification_info(db, std_id)
             }
             if include_allied:
-                result_item["allied_standards"] = await self.standards.get_allied_standards(db, std.id)
+                result_item["allied_standards"] = await self.standards.get_allied_standards(db, std_id)
                 
             results.append(result_item)
             

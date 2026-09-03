@@ -17,15 +17,24 @@ router = APIRouter()
 
 def _build_search_service(db: AsyncSession) -> SearchService:
     """Build SearchService with all dependencies."""
+    from app.ml.embeddings import EmbeddingEngine
+    embedding_engine = EmbeddingEngine(settings.EMBEDDING_MODEL)
+    multilingual = MultilingualService(
+        bhashini_api_key=settings.BHASHINI_API_KEY,
+        bhashini_api_url=settings.BHASHINI_API_URL,
+    )
+    ocr = OCRService(tesseract_cmd=settings.TESSERACT_CMD)
     standards_svc = StandardsService()
+    embedding_svc = EmbeddingService()
+    vector_svc = VectorService()
     audit_svc = AuditService()
 
     return SearchService(
-        vector_service=None,
-        multilingual=None,
-        ocr=None,
+        vector_service=vector_svc,
+        multilingual=multilingual,
+        ocr=ocr,
         standards=standards_svc,
-        embedding=None,
+        embedding=embedding_svc,
         audit=audit_svc,
     )
 
@@ -36,6 +45,7 @@ async def search(request: SearchRequest, db: AsyncSession = Depends(get_db)):
     """Search for standards by text query."""
     try:
         search_service = _build_search_service(db)
+        await search_service.vector_service.build_index(db)
         return await search_service.search_by_text(
             query=request.query,
             top_k=request.top_k,
@@ -58,6 +68,7 @@ async def search_upload(
     try:
         content = await file.read()
         search_service = _build_search_service(db)
+        await search_service.vector_service.build_index(db)
         return await search_service.search_by_file(
             file_bytes=content,
             filename=file.filename,
