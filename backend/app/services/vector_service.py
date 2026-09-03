@@ -15,8 +15,23 @@ class VectorService:
 
     async def build_index(self, db: AsyncSession):
         """Load all embeddings from DB, build FAISS index."""
-        # Stub: Fetch from DB and pass to build_index
-        pass
+        from sqlalchemy import select
+        from app.models.standard import StandardEmbedding
+        result = await db.execute(select(StandardEmbedding))
+        embeddings_records = result.scalars().all()
+        
+        if not embeddings_records:
+            return
+            
+        vectors = []
+        ids = []
+        for record in embeddings_records:
+            vectors.append(np.frombuffer(record.embedding_vector, dtype=np.float32))
+            ids.append(record.standard_id)
+            
+        vectors_np = np.vstack(vectors)
+        self.index_manager.build_index(vectors_np, ids)
+        logger.info(f"Loaded {len(ids)} vectors from DB into FAISS.")
 
     def search(self, query_text: str, top_k: int = 10) -> list[tuple[int, float]]:
         """Encode query, search FAISS."""

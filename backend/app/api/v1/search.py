@@ -26,8 +26,8 @@ def _build_search_service(db: AsyncSession) -> SearchService:
     )
     ocr = OCRService(tesseract_cmd=settings.TESSERACT_CMD)
     standards_svc = StandardsService()
-    embedding_svc = EmbeddingService(embedding_engine)
-    vector_svc = VectorService(embedding_engine, settings.FAISS_INDEX_PATH)
+    embedding_svc = EmbeddingService()
+    vector_svc = VectorService()
     audit_svc = AuditService()
 
     return SearchService(
@@ -45,6 +45,7 @@ async def search(request: SearchRequest, db: AsyncSession = Depends(get_db)):
     """Search for standards by text query."""
     try:
         search_service = _build_search_service(db)
+        await search_service.vector_service.build_index(db)
         return await search_service.search_by_text(
             query=request.query,
             top_k=request.top_k,
@@ -67,6 +68,7 @@ async def search_upload(
     try:
         content = await file.read()
         search_service = _build_search_service(db)
+        await search_service.vector_service.build_index(db)
         return await search_service.search_by_file(
             file_bytes=content,
             filename=file.filename,
