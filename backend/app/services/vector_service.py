@@ -37,6 +37,11 @@ class VectorService:
         """Encode query, search FAISS."""
         self.ensure_index_loaded()
         query_embedding = self.embedding_service.generate_embedding(query_text)
+        
+        # Check if the API returned zeros (rate limit)
+        if not np.any(query_embedding):
+            return []
+            
         return self.index_manager.search(query_embedding, top_k)
 
     def ensure_index_loaded(self):

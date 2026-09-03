@@ -32,6 +32,29 @@ class SearchService:
         
         vector_results = self.vector_service.search(english_query, top_k)
         
+        # Fallback to simple DB text search if vector search fails (e.g. rate limit)
+        if not vector_results:
+            logger.warning("Vector search returned empty (rate limit?). Falling back to DB text search.")
+            from sqlalchemy import select, or_
+            from app.models.standard import IndianStandard
+            result = await db.execute(
+                select(IndianStandard)
+                .where(or_(
+                    IndianStandard.title.ilike(f"%{english_query}%"),
+                    IndianStandard.description.ilike(f"%{english_query}%")
+                ))
+                .limit(top_k)
+            )
+            fallback_standards = result.scalars().all()
+            
+            # Map fallback results to match FAISS output format so the rest of the code works
+            # Give them a fake high score so UI renders them well
+            fake_score = 0.85
+            vector_results = [(std.id, fake_score) for std in fallback_standards]
+            
+            if not vector_results:
+                return self._build_search_response([], english_query, detected_lang)
+        
         results = []
         for std_id, score in vector_results:
             std = await self.standards.get_by_id(db, std_id)

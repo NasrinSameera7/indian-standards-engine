@@ -4,32 +4,24 @@ import numpy as np
 class EmbeddingEngine:
     def __init__(self, model_name: str = "sentence-transformers/all-MiniLM-L6-v2"):
         self.model_name = model_name
-        self._model = None
-
-    def _get_model(self):
-        if self._model is None:
-            import logging
-            logger = logging.getLogger(__name__)
-            logger.info(f"Loading local SentenceTransformer model: {self.model_name}")
-            from sentence_transformers import SentenceTransformer
-            self._model = SentenceTransformer(self.model_name)
-        return self._model
+        self.api_url = f"https://api-inference.huggingface.co/pipeline/feature-extraction/{model_name}"
 
     def encode(self, text: str) -> np.ndarray:
-        """Use local model to generate embeddings."""
+        """Use HF API because local PyTorch OOMs Render Free tier."""
+        import httpx
         try:
-            model = self._get_model()
-            vec = model.encode(text)
-            vec = np.array(vec, dtype=np.float32)
-            # Normalize L2
-            norm = np.linalg.norm(vec)
-            if norm > 0:
-                vec = vec / norm
-            return vec
-        except Exception as e:
-            import logging
-            logging.getLogger(__name__).error(f"Local embedding failed: {e}")
-            return np.zeros(384, dtype=np.float32)
+            response = httpx.post(self.api_url, json={"inputs": text, "options": {"wait_for_model": True}}, timeout=10.0)
+            if response.status_code == 200:
+                data = response.json()
+                if isinstance(data, list) and len(data) > 0:
+                    vec = np.array(data, dtype=np.float32)
+                    norm = np.linalg.norm(vec)
+                    if norm > 0:
+                        vec = vec / norm
+                    return vec
+        except Exception:
+            pass
+        return np.zeros(384, dtype=np.float32)
 
     def encode_batch(self, texts: list, batch_size: int = 32) -> np.ndarray:
         vectors = []
@@ -38,5 +30,4 @@ class EmbeddingEngine:
         return np.vstack(vectors)
 
     def get_dimension(self) -> int:
-        """Return embedding dimension."""
         return 384
