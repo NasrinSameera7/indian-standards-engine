@@ -31,10 +31,22 @@ class MultilingualService:
         if source_lang == 'en':
             return text
         try:
-            return await self._call_bhashini_api(text, source_lang)
+            if self.api_key and self.api_url:
+                return await self._call_bhashini_api(text, source_lang)
+            else:
+                return self._call_google_translator(text, source_lang)
         except Exception as e:
             logger.warning(f"Translation failed: {e}. Returning original text.")
             return text
+
+    def _call_google_translator(self, text: str, source_lang: str) -> str:
+        from deep_translator import GoogleTranslator
+        try:
+            translator = GoogleTranslator(source='auto', target='en')
+            return translator.translate(text)
+        except Exception as e:
+            logger.error(f"GoogleTranslator error: {e}")
+            raise e
 
     async def process(self, text: str, language_hint: str | None = None) -> tuple[str, str]:
         source_lang = language_hint or self.detect_language(text)
