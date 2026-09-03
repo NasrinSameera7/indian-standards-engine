@@ -12,7 +12,7 @@ const Navbar = () => {
           <div className="flex items-center">
             <Link to="/" className="flex-shrink-0 flex items-center">
               <CircleDot className="h-8 w-8 text-navy" />
-              <span className="ml-2 font-bold text-xl text-gray-900 hidden sm:block">IS Standards Engine</span>
+              <span className="ml-2 font-bold text-xl text-gray-900 hidden sm:block">INSPIRE</span>
             </Link>
           </div>
           <div className="hidden sm:ml-6 sm:flex sm:space-x-4">

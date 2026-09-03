@@ -50,14 +50,14 @@ const AdminPage = () => {
             </div>
             {loading ? <p>Loading...</p> : (
               <div>
-                <p className="text-3xl font-bold text-gray-900">{syncStatus?.total_standards || '32,450'}</p>
+                <p className="text-3xl font-bold text-gray-900">{syncStatus?.total_standards || 0}</p>
                 <p className="text-sm text-gray-500 mt-1">Total Standards Indexed</p>
                 <div className="mt-4 pt-4 border-t border-gray-100">
                   <p className="text-sm text-gray-600 flex justify-between">
-                    <span>Active:</span> <span className="font-medium text-green-600">28,100</span>
+                    <span>Active:</span> <span className="font-medium text-green-600">{syncStatus?.active_standards || 0}</span>
                   </p>
                   <p className="text-sm text-gray-600 flex justify-between mt-1">
-                    <span>Withdrawn:</span> <span className="font-medium text-red-600">4,350</span>
+                    <span>Withdrawn:</span> <span className="font-medium text-red-600">{syncStatus?.withdrawn_standards || 0}</span>
                   </p>
                 </div>
               </div>
