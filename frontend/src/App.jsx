@@ -9,6 +9,7 @@ import ResultsPage from './pages/ResultsPage';
 import SpecGeneratorPage from './pages/SpecGeneratorPage';
 import AuditLogPage from './pages/AuditLogPage';
 import AdminPage from './pages/AdminPage';
+import CompliancePage from './pages/CompliancePage';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
             <Route path="/search" element={<SearchPage />} />
             <Route path="/results" element={<ResultsPage />} />
             <Route path="/spec-generator" element={<SpecGeneratorPage />} />
+            <Route path="/compliance" element={<CompliancePage />} />
             <Route path="/audit" element={<AuditLogPage />} />
             <Route path="/admin" element={<AdminPage />} />
           </Routes>
