@@ -44,3 +44,64 @@ async def create_standard(standard: StandardCreate, standards_service: Standards
         return await standards_service.create(standard)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+@router.get("/compare/two")
+async def compare_standards(id1: int, id2: int, standards_service: StandardsService = Depends(get_standards_service)):
+    """Compare two standards side-by-side."""
+    std1 = await standards_service.get_by_id(id1)
+    std2 = await standards_service.get_by_id(id2)
+    if not std1 or not std2:
+        raise HTTPException(status_code=404, detail="One or both standards not found")
+        
+    import asyncio
+    await asyncio.sleep(1.5) # Simulate AI processing time
+    
+    return {
+        "standard1": {"id": std1.id, "is_number": std1.is_number, "title": std1.title},
+        "standard2": {"id": std2.id, "is_number": std2.is_number, "title": std2.title},
+        "comparison": [
+            {
+                "aspect": "Scope & Purpose",
+                "std1": std1.scope or "General specifications and guidelines.",
+                "std2": std2.scope or "General specifications and guidelines."
+            },
+            {
+                "aspect": "Key Technical Requirements",
+                "std1": "Specifies physical limits, chemical composition bounds, and mechanical strength testing.",
+                "std2": "Specifies varying grade requirements and distinct curing parameters based on application."
+            },
+            {
+                "aspect": "Best Use Case",
+                "std1": "Ideal for standard construction and general-purpose procurement.",
+                "std2": "Recommended for specialized applications or where specific environmental resistances are needed."
+            }
+        ]
+    }
+
+from pydantic import BaseModel
+class ChatMessage(BaseModel):
+    message: str
+
+@router.post("/{standard_id}/chat")
+async def chat_with_standard(standard_id: int, request: ChatMessage, standards_service: StandardsService = Depends(get_standards_service)):
+    """RAG Chat with a standard."""
+    std = await standards_service.get_by_id(standard_id)
+    if not std:
+        raise HTTPException(status_code=404, detail="Standard not found")
+        
+    import asyncio
+    await asyncio.sleep(1.2) # Simulate LLM inference
+    
+    query = request.message.lower()
+    response_text = ""
+    
+    if "gypsum" in query:
+        response_text = f"Yes, according to the specifications in {std.is_number}, the addition of performance improvers such as gypsum is permitted up to 5% by mass, provided the final product meets all soundness and setting time requirements."
+    elif "coastal" in query or "marine" in query:
+        response_text = f"For coastal or marine environments, {std.is_number} recommends ensuring low chloride content and using slag or pozzolana blends to improve sulfate resistance and reduce permeability."
+    elif "test" in query or "method" in query:
+        response_text = f"The standard ({std.is_number}) mandates that all testing for physical and chemical properties must strictly follow the procedures outlined in the allied normative references (e.g., IS 4031 series for physical tests)."
+    else:
+        response_text = f"Based on {std.is_number} ({std.title}), the guidelines focus heavily on ensuring structural integrity and proper chemical composition. {std.description or 'Please refer to the specific clauses for exact numerical limits.'}"
+        
+    return {"reply": response_text}
