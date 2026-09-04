@@ -3,10 +3,12 @@ import CertificationBadge from './CertificationBadge';
 import VersionAlert from './VersionAlert';
 import AlliedStandardsTree from './AlliedStandardsTree';
 import { SearchContext } from '../../context/SearchContext';
-import { CheckCircle } from 'lucide-react';
+import { CheckCircle, MessageSquare } from 'lucide-react';
+import StandardChatModal from '../Standards/StandardChatModal';
 
 const StandardCard = ({ standard: result }) => {
   const [expanded, setExpanded] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false);
   const { selectedStandards, setSelectedStandards } = useContext(SearchContext);
   
   // Extract data from the nested API response
@@ -82,11 +84,18 @@ const StandardCard = ({ standard: result }) => {
         {standardInfo.scope && standardInfo.scope.length > 150 && (
           <button 
             onClick={() => setExpanded(!expanded)} 
-            className="text-primary-600 text-sm font-medium mt-1 hover:underline"
+            className="text-primary-600 text-sm font-medium mt-1 hover:underline mr-4"
           >
             {expanded ? 'Show less' : 'Show more'}
           </button>
         )}
+        <button
+          onClick={() => setIsChatOpen(true)}
+          className="text-blue-600 text-sm font-medium mt-1 hover:underline inline-flex items-center"
+        >
+          <MessageSquare className="h-4 w-4 mr-1" />
+          Chat with Standard (AI)
+        </button>
       </div>
 
       <div className="flex flex-wrap gap-2 mb-2">
@@ -96,6 +105,12 @@ const StandardCard = ({ standard: result }) => {
       {(result.allied_standards || standardInfo.allied_standards)?.length > 0 && (
         <AlliedStandardsTree allied={result.allied_standards || standardInfo.allied_standards} />
       )}
+      
+      <StandardChatModal 
+        isOpen={isChatOpen} 
+        onClose={() => setIsChatOpen(false)} 
+        standard={standardInfo} 
+      />
     </div>
   );
 };

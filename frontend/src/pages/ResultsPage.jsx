@@ -1,12 +1,14 @@
-import React, { useContext } from 'react';
+import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SearchContext } from '../context/SearchContext';
 import StandardCard from '../components/Results/StandardCard';
-import { FileText, ArrowLeft, RefreshCw } from 'lucide-react';
+import { FileText, ArrowLeft, RefreshCw, Columns } from 'lucide-react';
+import CompareModal from '../components/Standards/CompareModal';
 
 const ResultsPage = () => {
   const { searchResults, searchQuery, detectedLanguage, selectedStandards, isLoading } = useContext(SearchContext);
   const navigate = useNavigate();
+  const [isCompareOpen, setIsCompareOpen] = useState(false);
 
   if (isLoading) {
     return (
@@ -31,15 +33,26 @@ const ResultsPage = () => {
             Back to Search
           </button>
           
-          {selectedStandards.length > 0 && (
-            <button
-              onClick={() => navigate('/spec-generator')}
-              className="flex items-center px-4 py-2 bg-saffron text-white rounded-md shadow hover:bg-orange-500 transition-colors font-medium"
-            >
-              <FileText className="h-4 w-4 mr-2" />
-              Generate Spec ({selectedStandards.length})
-            </button>
-          )}
+          <div className="flex space-x-3">
+            {selectedStandards.length === 2 && (
+              <button
+                onClick={() => setIsCompareOpen(true)}
+                className="flex items-center px-4 py-2 bg-purple-600 text-white rounded-md shadow hover:bg-purple-700 transition-colors font-medium"
+              >
+                <Columns className="h-4 w-4 mr-2" />
+                Compare Standards
+              </button>
+            )}
+            {selectedStandards.length > 0 && (
+              <button
+                onClick={() => navigate('/spec-generator')}
+                className="flex items-center px-4 py-2 bg-saffron text-white rounded-md shadow hover:bg-orange-500 transition-colors font-medium"
+              >
+                <FileText className="h-4 w-4 mr-2" />
+                Generate Spec ({selectedStandards.length})
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
@@ -85,6 +98,12 @@ const ResultsPage = () => {
             )}
           </div>
         </div>
+        
+        <CompareModal 
+          isOpen={isCompareOpen} 
+          onClose={() => setIsCompareOpen(false)} 
+          standardIds={selectedStandards.map(s => s.id)} 
+        />
       </div>
     </div>
   );
