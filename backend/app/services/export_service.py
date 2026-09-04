@@ -20,10 +20,19 @@ class ExportService:
         buffer = io.BytesIO()
         try:
             c = canvas.Canvas(buffer, pagesize=letter)
-            c.setFont("Helvetica-Bold", 16)
-            c.drawString(100, 750, str(spec.get('title', 'Specification')))
             
-            y = 700
+            # Govt Header
+            c.setFont("Helvetica-Bold", 14)
+            c.drawCentredString(306, 760, "GOVERNMENT OF INDIA")
+            c.setFont("Helvetica", 12)
+            c.drawCentredString(306, 740, "STANDARD BIDDING DOCUMENT (SBD)")
+            
+            c.line(100, 725, 512, 725)
+            
+            c.setFont("Helvetica-Bold", 16)
+            c.drawString(100, 700, str(spec.get('title', 'Specification')))
+            
+            y = 660
             sections = spec.get('sections', [])
             if not isinstance(sections, list):
                 sections = []
@@ -63,6 +72,17 @@ class ExportService:
         buffer = io.BytesIO()
         try:
             doc = docx.Document()
+            
+            # Govt Header
+            h1 = doc.add_paragraph()
+            h1.alignment = 1 # Center
+            r1 = h1.add_run("GOVERNMENT OF INDIA")
+            r1.bold = True
+            
+            h2 = doc.add_paragraph()
+            h2.alignment = 1
+            r2 = h2.add_run("STANDARD BIDDING DOCUMENT (SBD)")
+            
             doc.add_heading(str(spec.get('title', 'Specification')), 0)
             
             sections = spec.get('sections', [])
