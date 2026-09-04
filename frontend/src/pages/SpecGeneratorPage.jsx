@@ -60,8 +60,11 @@ const SpecGeneratorPage = () => {
     setTimeout(() => {
       setIsPublishing(false);
       const gemId = "GEM/" + new Date().getFullYear() + "/B/" + Math.floor(Math.random() * 9000000 + 1000000);
-      alert(`Success! Tender Draft has been pushed to GeM Integration Sandbox.\n\nGeM Bid Number: ${gemId}\n\nYou can now log in to the GeM portal with your DSC to finalize and publish.`);
-    }, 2500);
+      alert(`Success! Tender Draft has been pushed to GeM Integration Sandbox.\n\nGeM Bid Number: ${gemId}\n\nYou will now be redirected to the GeM portal to log in with your DSC and finalize the publication.`);
+      
+      // Redirect to actual GeM SSO login page in a new tab
+      window.open("https://sso.gem.gov.in/ARXSSO/oauth/login", "_blank");
+    }, 2000);
   };
 
   const removeStandard = (id) => {
