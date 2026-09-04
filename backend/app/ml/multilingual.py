@@ -20,6 +20,10 @@ class MultilingualService:
         self.api_url = bhashini_api_url
 
     def detect_language(self, text: str) -> str:
+        # Fast path: if text is pure ASCII, it's highly likely English
+        if all(ord(c) < 128 for c in text):
+            return 'en'
+            
         try:
             lang = detect(text)
             return lang

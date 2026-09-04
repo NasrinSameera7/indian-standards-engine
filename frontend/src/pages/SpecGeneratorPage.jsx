@@ -62,8 +62,8 @@ const SpecGeneratorPage = () => {
       const gemId = "GEM/" + new Date().getFullYear() + "/B/" + Math.floor(Math.random() * 9000000 + 1000000);
       alert(`Success! Tender Draft has been pushed to GeM Integration Sandbox.\n\nGeM Bid Number: ${gemId}\n\nYou will now be redirected to the GeM portal to log in with your DSC and finalize the publication.`);
       
-      // Redirect to actual GeM SSO login page in a new tab
-      window.open("https://sso.gem.gov.in/ARXSSO/oauth/login", "_blank");
+      // Redirect in the same window to avoid popup blockers
+      window.location.href = "https://sso.gem.gov.in/ARXSSO/oauth/login";
     }, 2000);
   };
 
