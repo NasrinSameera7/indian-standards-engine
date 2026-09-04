@@ -11,6 +11,8 @@ import AuditLogPage from './pages/AuditLogPage';
 import AdminPage from './pages/AdminPage';
 import CompliancePage from './pages/CompliancePage';
 
+import ChatPage from './pages/ChatPage';
+
 function App() {
   return (
     <SearchProvider>
@@ -21,6 +23,7 @@ function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/search" element={<SearchPage />} />
             <Route path="/results" element={<ResultsPage />} />
+            <Route path="/chat" element={<ChatPage />} />
             <Route path="/spec-generator" element={<SpecGeneratorPage />} />
             <Route path="/compliance" element={<CompliancePage />} />
             <Route path="/audit" element={<AuditLogPage />} />
