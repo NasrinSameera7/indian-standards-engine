@@ -69,13 +69,20 @@ const CompliancePage = () => {
 
         {report && (
           <div className="space-y-6">
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 flex items-start">
+            <div className={`bg-white rounded-lg shadow-sm border p-6 flex items-start ${report.overall_status === 'COMPLIANT' ? 'border-green-200' : 'border-gray-200'}`}>
               <div className="flex-shrink-0 pt-1">
-                <AlertTriangle className="h-8 w-8 text-amber-500" />
+                {report.overall_status === 'COMPLIANT' ? (
+                  <CheckCircle className="h-8 w-8 text-green-500" />
+                ) : (
+                  <AlertTriangle className="h-8 w-8 text-amber-500" />
+                )}
               </div>
               <div className="ml-4 flex-1">
                 <h3 className="text-lg font-medium text-gray-900">Scan Complete: {report.filename}</h3>
-                <p className="mt-1 text-sm text-gray-500">{report.summary}</p>
+                <p className={`mt-1 text-sm font-medium ${report.overall_status === 'COMPLIANT' ? 'text-green-700' : 'text-amber-700'}`}>
+                  {report.overall_status === 'COMPLIANT' ? 'STATUS: PERFECTLY COMPLIANT' : 'STATUS: ' + report.overall_status.replace('_', ' ')}
+                </p>
+                <p className="mt-2 text-sm text-gray-500">{report.summary}</p>
                 
                 <button onClick={() => setReport(null)} className="mt-4 text-sm text-blue-600 hover:underline">
                   Scan another document
@@ -86,31 +93,35 @@ const CompliancePage = () => {
             <h3 className="text-xl font-semibold text-gray-900">Findings ({report.findings.length})</h3>
             
             <div className="space-y-4">
-              {report.findings.map((finding, idx) => (
-                <div key={idx} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                  <div className="bg-amber-50 px-4 py-3 border-b border-gray-200 flex justify-between items-center">
-                    <span className="font-semibold text-amber-800">{finding.clause}</span>
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
-                      {finding.issue}
-                    </span>
-                  </div>
-                  <div className="p-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="bg-gray-50 p-3 rounded border border-gray-200">
-                        <p className="text-xs text-gray-500 font-medium mb-1">Found in Document:</p>
-                        <p className="text-sm text-gray-800 line-through opacity-70">"{finding.extracted_text}"</p>
-                      </div>
-                      <div className="flex flex-col justify-center items-center text-gray-400 hidden md:flex" style={{ width: '20px', margin: '0 auto' }}>
-                        <ArrowRight />
-                      </div>
-                      <div className="bg-blue-50 p-3 rounded border border-blue-100">
-                        <p className="text-xs text-blue-600 font-medium mb-1">AI Recommendation:</p>
-                        <p className="text-sm text-blue-900">{finding.recommendation}</p>
+              {report.findings.map((finding, idx) => {
+                const isPositive = report.overall_status === 'COMPLIANT';
+                
+                return (
+                  <div key={idx} className={`bg-white rounded-lg shadow-sm border overflow-hidden ${isPositive ? 'border-green-200' : 'border-gray-200'}`}>
+                    <div className={`${isPositive ? 'bg-green-50' : 'bg-amber-50'} px-4 py-3 border-b border-gray-200 flex justify-between items-center`}>
+                      <span className={`font-semibold ${isPositive ? 'text-green-800' : 'text-amber-800'}`}>{finding.clause}</span>
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${isPositive ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'}`}>
+                        {finding.issue}
+                      </span>
+                    </div>
+                    <div className="p-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className={`${isPositive ? 'bg-green-50/50 border-green-100' : 'bg-gray-50 border-gray-200'} p-3 rounded border`}>
+                          <p className={`text-xs font-medium mb-1 ${isPositive ? 'text-green-700' : 'text-gray-500'}`}>Found in Document:</p>
+                          <p className={`text-sm ${isPositive ? 'text-green-900' : 'text-gray-800 line-through opacity-70'}`}>"{finding.extracted_text}"</p>
+                        </div>
+                        <div className="flex flex-col justify-center items-center text-gray-400 hidden md:flex" style={{ width: '20px', margin: '0 auto' }}>
+                          <ArrowRight />
+                        </div>
+                        <div className={`${isPositive ? 'bg-green-50 border-green-200' : 'bg-blue-50 border-blue-100'} p-3 rounded border`}>
+                          <p className={`text-xs font-medium mb-1 ${isPositive ? 'text-green-700' : 'text-blue-600'}`}>AI Verification:</p>
+                          <p className={`text-sm ${isPositive ? 'text-green-900' : 'text-blue-900'}`}>{finding.recommendation}</p>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
