@@ -44,11 +44,7 @@ const ChatPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-blue-50 to-purple-100 py-8 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-      {/* Decorative background blobs */}
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
-      <div className="absolute top-0 right-1/4 w-96 h-96 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
-      <div className="absolute -bottom-32 left-1/2 w-96 h-96 bg-indigo-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000"></div>
+    <div className="py-8 px-4 sm:px-6 lg:px-8">
       
       <div className="max-w-4xl mx-auto relative z-10">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">AI Chat with Standards (RAG)</h1>
