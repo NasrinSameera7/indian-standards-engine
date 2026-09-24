@@ -35,27 +35,22 @@ class SearchService:
         # Fallback to simple DB text search if vector search fails (e.g. rate limit)
         if not vector_results:
             logger.warning("Vector search returned empty (rate limit?). Falling back to DB text search.")
-            from sqlalchemy import select, text
+            from sqlalchemy import select, or_
             from app.models.standard import IndianStandard
-            result = await db.execute(
-                select(IndianStandard)
-                .where(
-                    text("to_tsvector('english', title || ' ' || coalesce(description, '')) @@ plainto_tsquery('english', :query)")
-                )
-                .params(query=english_query)
-                .limit(top_k)
-            )
-            fallback_standards = result.scalars().all()
             
-            # If Full Text Search fails, try a very loose ILIKE on the first word as a last resort
-            if not fallback_standards and english_query:
-                first_word = english_query.split()[0]
+            clean_query = english_query.replace("AI Vision Object Detection:", "").replace(",", "").strip()
+            keywords = [w for w in clean_query.split() if len(w) > 2]
+            
+            if keywords:
+                conditions = [IndianStandard.title.ilike(f"%{kw}%") for kw in keywords]
                 result = await db.execute(
                     select(IndianStandard)
-                    .where(IndianStandard.title.ilike(f"%{first_word}%"))
+                    .where(or_(*conditions))
                     .limit(top_k)
                 )
                 fallback_standards = result.scalars().all()
+            else:
+                fallback_standards = []
             
             # Map fallback results to match FAISS output format so the rest of the code works
             # Give them a fake high score so UI renders them well
