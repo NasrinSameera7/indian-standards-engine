@@ -38,8 +38,9 @@ class SearchService:
             from sqlalchemy import select, or_
             from app.models.standard import IndianStandard
             
+            stop_words = {"and", "the", "for", "with", "from", "that", "this", "are"}
             clean_query = english_query.replace("AI Vision Object Detection:", "").replace(",", "").strip()
-            keywords = [w for w in clean_query.split() if len(w) > 2]
+            keywords = [w for w in clean_query.split() if len(w) > 2 and w.lower() not in stop_words]
             
             if keywords:
                 conditions = [IndianStandard.title.ilike(f"%{kw}%") for kw in keywords]

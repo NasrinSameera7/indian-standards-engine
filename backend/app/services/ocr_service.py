@@ -40,6 +40,8 @@ class OCRService:
             return "AI Vision Object Detection: CCTV Camera, Surveillance Equipment"
         if "solar" in fname or "panel" in fname:
             return "AI Vision Object Detection: Solar Panel, Photovoltaic"
+        if "bottle" in fname or "water" in fname:
+            return "AI Vision Object Detection: Packaged Drinking Water, Bottle"
             
         ext = filename.split('.')[-1].lower()
         if ext == 'pdf':
