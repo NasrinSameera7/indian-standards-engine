@@ -47,9 +47,16 @@ class SearchService:
                 result = await db.execute(
                     select(IndianStandard)
                     .where(or_(*conditions))
-                    .limit(top_k)
+                    .limit(50)  # Fetch more to sort in Python
                 )
-                fallback_standards = result.scalars().all()
+                raw_standards = result.scalars().all()
+                
+                # Sort by how many keywords match the title
+                def score_std(std):
+                    title_lower = std.title.lower()
+                    return sum(1 for kw in keywords if kw.lower() in title_lower)
+                
+                fallback_standards = sorted(raw_standards, key=score_std, reverse=True)[:top_k]
             else:
                 fallback_standards = []
             
