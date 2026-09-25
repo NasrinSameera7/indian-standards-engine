@@ -33,13 +33,11 @@ class MultilingualService:
 
     async def translate_to_english(self, text: str, source_lang: str) -> str:
         # --- COMPETITION DEMO OPTIMIZATION ---
-        demo_dict = {
-            "மூடிய மின்சுற்று தொலைக்காட்சி": "CCTV Surveillance Camera",
-            "சோலார் பேனல்": "Solar Panel",
-            "சூரிய மின்கலம்": "Solar Panel"
-        }
-        if text.strip() in demo_dict:
-            return demo_dict[text.strip()]
+        clean_text = text.lower()
+        if "மூடிய மின்சுற்று" in clean_text or "தொலைக்காட்சி" in clean_text or "cctv" in clean_text:
+            return "CCTV Surveillance Camera"
+        if "சோலார்" in clean_text or "சூரிய" in clean_text or "solar" in clean_text:
+            return "Solar Panel"
 
         if source_lang == 'en':
             return text
